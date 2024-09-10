@@ -46,7 +46,17 @@
       );
     };
 
-    const TodoDisplay = ({ todos, handleDelete }) => {
+    const TodoDisplay = ({ todos, handleDelete, filterOption }) => {
+      const currentTodo = todos.filter((ele) => {
+        if (filterOption === "") {
+          return true;
+        } else if (filterOption === "completed") {
+          return ele.completed === true;
+        } else if (filterOption === "not completed") {
+          return ele.completed === false;
+        }
+      });
+
       return (
         <div>
           <table border="1px solid black">
@@ -60,7 +70,7 @@
               </tr>
             </thead>
             <tbody>
-              {todos.map((ele, i) => (
+              {currentTodo.map((ele, i) => (
                 <tr>
                   <td>{i + 1}</td>
                   <td>{ele.todo}</td>
@@ -81,6 +91,7 @@
       const [todos, setTodos] = React.useState([]);
       const [currentTodo, setCurrentTodo] = React.useState("");
       const [currentUser, setCurrentUser] = React.useState("");
+      const [filterOption, setFilterOption] = React.useState("");
 
       const handleTodoChange = (e) => {
         setCurrentTodo(e.target.value);
@@ -106,10 +117,19 @@
         setTodos([...newTodos]);
       };
 
-      console.log(todos);
+      const handleFilterChange = (e) => {
+        setFilterOption(e.target.value);
+      };
 
       return (
         <>
+          <div className="filter">
+            <select onChange={handleFilterChange} name="filter" id="filter">
+              <option value="">All</option>
+              <option value="completed">Completed</option>
+              <option value="not completed">No Completed</option>
+            </select>
+          </div>
           <TodoInput
             handleTodoChange={handleTodoChange}
             handleUserChange={handleUserChange}
@@ -117,7 +137,11 @@
             currentTodo={currentTodo}
             currentUser={currentUser}
           />
-          <TodoDisplay todos={todos} handleDelete={handleDelete} />
+          <TodoDisplay
+            filterOption={filterOption}
+            todos={todos}
+            handleDelete={handleDelete}
+          />
         </>
       );
     };
