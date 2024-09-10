@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Todo List with Filtering Functionality</title>
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+  <script src="https://www.unpkg.com/react@18.2.0/umd/react.development.js"></script>
+  <script src="https://www.unpkg.com/react-dom@18.2.0/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script type="text/babel">
+    const TodoInput = ({
+      handleTodoChange,
+      handleUserChange,
+      handleSubmit,
+      currentTodo,
+      currentUser,
+    }) => {
+      return (
+        <div>
+          <div className="todo">
+            <label htmlFor="todo-input">Enter you todo</label>
+            <input
+              id="todo-input"
+              onChange={handleTodoChange}
+              type="text"
+              placeholder="Enter your Todo"
+              value={currentTodo}
+            />
+          </div>
+          <div className="user">
+            <label htmlFor="user-input">Enter User Name</label>
+            <input
+              id="user-input"
+              onChange={handleUserChange}
+              type="text"
+              placeholder="Enter User Name"
+              value={currentUser}
+            />
+          </div>
+          <button onClick={handleSubmit}>Submit</button>
+        </div>
+      );
+    };
+
+    const TodoDisplay = ({ todos, handleDelete }) => {
+      return (
+        <div>
+          <table border="1px solid black">
+            <thead>
+              <tr>
+                <th>Sr. No.</th>
+                <th>Todo Title</th>
+                <th>Username</th>
+                <th>Status</th>
+                <th>Delete</th>
+              </tr>
+            </thead>
+            <tbody>
+              {todos.map((ele, i) => (
+                <tr>
+                  <td>{i + 1}</td>
+                  <td>{ele.todo}</td>
+                  <td>{ele.user}</td>
+                  <td>{ele.completed ? "Completed" : "Not Completed"}</td>
+                  <td>
+                    <button onClick={() => handleDelete(i)}>Delete</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+    };
+
+    const App = () => {
+      const [todos, setTodos] = React.useState([]);
+      const [currentTodo, setCurrentTodo] = React.useState("");
+      const [currentUser, setCurrentUser] = React.useState("");
+
+      const handleTodoChange = (e) => {
+        setCurrentTodo(e.target.value);
+      };
+
+      const handleUserChange = (e) => {
+        setCurrentUser(e.target.value);
+      };
+
+      const handleSubmit = () => {
+        const newTodo = {
+          todo: currentTodo,
+          user: currentUser,
+          completed: false,
+        };
+        setTodos([...todos, newTodo]);
+        setCurrentTodo("");
+        setCurrentUser("");
+      };
+
+      const handleDelete = (index) => {
+        const newTodos = todos.filter((ele, i) => i !== index);
+        setTodos([...newTodos]);
+      };
+
+      console.log(todos);
+
+      return (
+        <>
+          <TodoInput
+            handleTodoChange={handleTodoChange}
+            handleUserChange={handleUserChange}
+            handleSubmit={handleSubmit}
+            currentTodo={currentTodo}
+            currentUser={currentUser}
+          />
+          <TodoDisplay todos={todos} handleDelete={handleDelete} />
+        </>
+      );
+    };
+
+    const root = ReactDOM.createRoot(document.getElementById("root"));
+    root.render(<App />);
+  </script>
+</html>
