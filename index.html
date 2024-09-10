@@ -8,52 +8,64 @@
   <body>
     <div id="root"></div>
   </body>
+
+  <!-- Including React, ReactDOM, and Babel libraries using CDN links -->
   <script src="https://www.unpkg.com/react@18.2.0/umd/react.development.js"></script>
   <script src="https://www.unpkg.com/react-dom@18.2.0/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
   <script type="text/babel">
+    // Component to handle the input of todos and user names
     const TodoInput = ({
-      handleTodoChange,
-      handleUserChange,
-      handleSubmit,
-      currentTodo,
-      currentUser,
+      handleTodoChange, // Function to handle changes in the todo input
+      handleUserChange, // Function to handle changes in the user name input
+      handleSubmit, // Function to submit the todo
+      currentTodo, // Current todo text entered by the user
+      currentUser, // Current user name entered by the user
     }) => {
       return (
         <div>
           <div className="todo">
-            <label htmlFor="todo-input">Enter you todo</label>
+            <label htmlFor="todo-input">Enter your todo</label>
             <input
               id="todo-input"
-              onChange={handleTodoChange}
+              onChange={handleTodoChange} // Calls handleTodoChange when input value changes
               type="text"
               placeholder="Enter your Todo"
-              value={currentTodo}
+              value={currentTodo} // Binds input value to currentTodo state
             />
           </div>
           <div className="user">
             <label htmlFor="user-input">Enter User Name</label>
             <input
               id="user-input"
-              onChange={handleUserChange}
+              onChange={handleUserChange} // Calls handleUserChange when input value changes
               type="text"
               placeholder="Enter User Name"
-              value={currentUser}
+              value={currentUser} // Binds input value to currentUser state
             />
           </div>
-          <button onClick={handleSubmit}>Submit</button>
+          <button onClick={handleSubmit}>Submit</button>{" "}
+          {/* Calls handleSubmit on button click */}
         </div>
       );
     };
 
-    const TodoDisplay = ({ todos, handleDelete, filterOption }) => {
+    // Component to display the todos in a table format with options to delete and change the status
+    const TodoDisplay = ({
+      todos, // Array of all todos
+      handleDelete, // Function to delete a todo
+      filterOption, // Current filter option selected
+      handleStatusChange, // Function to toggle the status of a todo
+    }) => {
+      // Filters todos based on the selected filter option
       const currentTodo = todos.filter((ele) => {
         if (filterOption === "") {
-          return true;
+          return true; // If no filter is selected, display all todos
         } else if (filterOption === "completed") {
-          return ele.completed === true;
+          return ele.completed === true; // Show only completed todos
         } else if (filterOption === "not completed") {
-          return ele.completed === false;
+          return ele.completed === false; // Show only uncompleted todos
         }
       });
 
@@ -70,14 +82,21 @@
               </tr>
             </thead>
             <tbody>
+              {/* Maps over the filtered todos and displays each one */}
               {currentTodo.map((ele, i) => (
-                <tr>
-                  <td>{i + 1}</td>
-                  <td>{ele.todo}</td>
-                  <td>{ele.user}</td>
-                  <td>{ele.completed ? "Completed" : "Not Completed"}</td>
+                <tr key={i}>
+                  <td>{i + 1}</td> {/* Displays the serial number */}
+                  <td>{ele.todo}</td> {/* Displays the todo title */}
+                  <td>{ele.user}</td> {/* Displays the username */}
                   <td>
-                    <button onClick={() => handleDelete(i)}>Delete</button>
+                    {/* Button to toggle the completion status of the todo */}
+                    <button onClick={() => handleStatusChange(ele.id)}>
+                      {ele.completed ? "Completed" : "Not Completed"}
+                    </button>
+                  </td>
+                  <td>
+                    {/* Button to delete the todo */}
+                    <button onClick={() => handleDelete(ele.id)}>Delete</button>
                   </td>
                 </tr>
               ))}
@@ -87,49 +106,75 @@
       );
     };
 
+    // Main App component that manages the state and logic
     const App = () => {
+      // State to store all todos
       const [todos, setTodos] = React.useState([]);
+      // State to store the current todo input
       const [currentTodo, setCurrentTodo] = React.useState("");
+      // State to store the current user input
       const [currentUser, setCurrentUser] = React.useState("");
+      // State to store the selected filter option
       const [filterOption, setFilterOption] = React.useState("");
 
+      // Updates currentTodo when the user types a todo
       const handleTodoChange = (e) => {
         setCurrentTodo(e.target.value);
       };
 
+      // Updates currentUser when the user types a name
       const handleUserChange = (e) => {
         setCurrentUser(e.target.value);
       };
 
+      // Adds a new todo to the list and resets the input fields
       const handleSubmit = () => {
         const newTodo = {
+          id: Math.floor(Math.random() * 1000000) + 1, // Generates a random ID for each todo
           todo: currentTodo,
           user: currentUser,
-          completed: false,
+          completed: false, // Default status is 'not completed'
         };
-        setTodos([...todos, newTodo]);
-        setCurrentTodo("");
-        setCurrentUser("");
+        setTodos([...todos, newTodo]); // Adds the new todo to the list
+        setCurrentTodo(""); // Resets todo input
+        setCurrentUser(""); // Resets user input
       };
 
-      const handleDelete = (index) => {
-        const newTodos = todos.filter((ele, i) => i !== index);
-        setTodos([...newTodos]);
+      // Deletes a todo based on its unique ID
+      const handleDelete = (id) => {
+        const newTodos = todos.filter((ele) => ele.id !== id); // Filters out the deleted todo
+        setTodos([...newTodos]); // Updates the todo list
       };
 
+      // Updates the filter option when the user selects one
       const handleFilterChange = (e) => {
         setFilterOption(e.target.value);
       };
 
+      // Toggles the completion status of the todo based on its ID
+      const handleStatusChange = (id) => {
+        todos.forEach((ele) => {
+          if (ele.id === id) {
+            ele.completed = !ele.completed; // Toggles the status
+          }
+          setTodos([...todos]); // Updates the todos array to reflect the change
+        });
+      };
+
       return (
         <>
+          {/* Dropdown for selecting the filter option */}
           <div className="filter">
             <select onChange={handleFilterChange} name="filter" id="filter">
-              <option value="">All</option>
-              <option value="completed">Completed</option>
-              <option value="not completed">No Completed</option>
+              <option value="">All</option> {/* Show all todos */}
+              <option value="completed">Completed</option>{" "}
+              {/* Show only completed todos */}
+              <option value="not completed">Not Completed</option>{" "}
+              {/* Show only uncompleted todos */}
             </select>
           </div>
+
+          {/* Todo input component */}
           <TodoInput
             handleTodoChange={handleTodoChange}
             handleUserChange={handleUserChange}
@@ -137,15 +182,19 @@
             currentTodo={currentTodo}
             currentUser={currentUser}
           />
+
+          {/* Todo display component */}
           <TodoDisplay
             filterOption={filterOption}
             todos={todos}
             handleDelete={handleDelete}
+            handleStatusChange={handleStatusChange}
           />
         </>
       );
     };
 
+    // Render the App component in the #root div
     const root = ReactDOM.createRoot(document.getElementById("root"));
     root.render(<App />);
   </script>
